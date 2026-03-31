@@ -1,0 +1,183 @@
+version: "3.8"
+
+services:
+  zipkin:
+    image: openzipkin/zipkin:latest
+    container_name: zipkin
+    ports:
+      - "9411:9411"
+    networks:
+      - jobportal-network
+
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - jobportal-network
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    ports:
+      - "3307:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=MySQL@123
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./mysql/init:/docker-entrypoint-initdb.d
+    networks:
+      - jobportal-network
+
+  eureka-server:
+    image: madhavkolasani/jobportal-eureka-server:latest
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+    networks:
+      - jobportal-network
+
+  config-server:
+    image: madhavkolasani/jobportal-config-server:latest
+    container_name: config-server
+    ports:
+      - "8888:8888"
+    environment:
+      - EUREKA_SERVER_URL=http://eureka-server:8761/eureka
+      - ZIPKIN_URL=http://zipkin:9411/api/v2/spans
+      - CONFIG_REPO_URI=https://github.com/Madhav-kolasani/jobportal-config.git
+      - CONFIG_REPO_LABEL=main
+      - XDG_CONFIG_HOME=/tmp/jgit
+    depends_on:
+      - eureka-server
+      - zipkin
+    networks:
+      - jobportal-network
+
+  user-service:
+    image: madhavkolasani/jobportal-user-service:latest
+    container_name: user-service
+    environment:
+      - CONFIG_SERVER_URI=http://config-server:8888
+      - EUREKA_SERVER_URL=http://eureka-server:8761/eureka
+      - ZIPKIN_URL=http://zipkin:9411/api/v2/spans
+      - RABBITMQ_HOST=rabbitmq
+      - MYSQL_HOST=mysql
+    depends_on:
+      - config-server
+      - mysql
+      - rabbitmq
+    networks:
+      - jobportal-network
+
+  job-service:
+    image: madhavkolasani/jobportal-job-service:latest
+    container_name: job-service
+    environment:
+      - CONFIG_SERVER_URI=http://config-server:8888
+      - EUREKA_SERVER_URL=http://eureka-server:8761/eureka
+      - ZIPKIN_URL=http://zipkin:9411/api/v2/spans
+      - RABBITMQ_HOST=rabbitmq
+      - MYSQL_HOST=mysql
+    depends_on:
+      - config-server
+      - mysql
+      - rabbitmq
+    networks:
+      - jobportal-network
+
+  application-service:
+    image: madhavkolasani/jobportal-application-service:latest
+    container_name: application-service
+    environment:
+      - CONFIG_SERVER_URI=http://config-server:8888
+      - EUREKA_SERVER_URL=http://eureka-server:8761/eureka
+      - ZIPKIN_URL=http://zipkin:9411/api/v2/spans
+      - RABBITMQ_HOST=rabbitmq
+      - MYSQL_HOST=mysql
+    depends_on:
+      - config-server
+      - mysql
+      - rabbitmq
+    networks:
+      - jobportal-network
+
+  resume-service:
+    image: madhavkolasani/jobportal-resume-service:latest
+    container_name: resume-service
+    environment:
+      - CONFIG_SERVER_URI=http://config-server:8888
+      - EUREKA_SERVER_URL=http://eureka-server:8761/eureka
+      - ZIPKIN_URL=http://zipkin:9411/api/v2/spans
+      - RABBITMQ_HOST=rabbitmq
+      - MYSQL_HOST=mysql
+      - RESUME_UPLOAD_DIR=/data/resumes
+    volumes:
+      - resume-files:/data/resumes
+    depends_on:
+      - config-server
+      - mysql
+      - rabbitmq
+    networks:
+      - jobportal-network
+
+  notification-service:
+    image: madhavkolasani/jobportal-notification-service:latest
+    container_name: notification-service
+    environment:
+      - CONFIG_SERVER_URI=http://config-server:8888
+      - EUREKA_SERVER_URL=http://eureka-server:8761/eureka
+      - ZIPKIN_URL=http://zipkin:9411/api/v2/spans
+      - RABBITMQ_HOST=rabbitmq
+      - MYSQL_HOST=mysql
+    depends_on:
+      - config-server
+      - mysql
+      - rabbitmq
+    networks:
+      - jobportal-network
+
+  search-service:
+    image: madhavkolasani/jobportal-search-service:latest
+    container_name: search-service
+    environment:
+      - CONFIG_SERVER_URI=http://config-server:8888
+      - EUREKA_SERVER_URL=http://eureka-server:8761/eureka
+      - ZIPKIN_URL=http://zipkin:9411/api/v2/spans
+      - RABBITMQ_HOST=rabbitmq
+      - MYSQL_HOST=mysql
+    depends_on:
+      - config-server
+      - mysql
+      - rabbitmq
+    networks:
+      - jobportal-network
+
+  api-gateway:
+    image: madhavkolasani/jobportal-api-gateway:latest
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - CONFIG_SERVER_URI=http://config-server:8888
+      - EUREKA_SERVER_URL=http://eureka-server:8761/eureka
+      - ZIPKIN_URL=http://zipkin:9411/api/v2/spans
+      - RABBITMQ_HOST=rabbitmq
+    depends_on:
+      - user-service
+      - job-service
+      - application-service
+      - resume-service
+      - notification-service
+      - search-service
+    networks:
+      - jobportal-network
+
+volumes:
+  mysql-data:
+  resume-files:
+
+networks:
+  jobportal-network:
