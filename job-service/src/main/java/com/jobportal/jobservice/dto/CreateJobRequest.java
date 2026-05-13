@@ -27,7 +27,7 @@ public class CreateJobRequest {
     private String salaryRange;
 
     @NotBlank(message = "Description is required")
-    @Size(min = 50, message = "Description must be at least 50 characters")
+    @Size(min = 10, message = "Description must be at least 10 characters")
     private String description;
 
     private String requirements;

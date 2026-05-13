@@ -10,22 +10,22 @@ for module in "${modules[@]}"; do
   echo "Building Docker image for $module..."
 done
 
-docker build -t madhavkolasani/jobportal-eureka-server:latest ./eureka-server
-docker build -t madhavkolasani/jobportal-config-server:latest ./config-server
-docker build -t madhavkolasani/jobportal-user-service:latest ./user-service
-docker build -t madhavkolasani/jobportal-job-service:latest ./job-service
-docker build -t madhavkolasani/jobportal-application-service:latest ./application-service
-docker build -t madhavkolasani/jobportal-resume-service:latest ./resume-service
-docker build -t madhavkolasani/jobportal-notification-service:latest ./notification-service
-docker build -t madhavkolasani/jobportal-search-service:latest ./search-service
-docker build -t madhavkolasani/jobportal-api-gateway:latest ./api-gateway
+docker build -t siddhantsingh/jobportal-eureka-server:latest ./eureka-server
+docker build -t siddhantsingh/jobportal-config-server:latest ./config-server
+docker build -t siddhantsingh/jobportal-user-service:latest ./user-service
+docker build -t siddhantsingh/jobportal-job-service:latest ./job-service
+docker build -t siddhantsingh/jobportal-application-service:latest ./application-service
+docker build -t siddhantsingh/jobportal-resume-service:latest ./resume-service
+docker build -t siddhantsingh/jobportal-notification-service:latest ./notification-service
+docker build -t siddhantsingh/jobportal-search-service:latest ./search-service
+docker build -t siddhantsingh/jobportal-api-gateway:latest ./api-gateway
 
-docker push madhavkolasani/jobportal-eureka-server:latest
-docker push madhavkolasani/jobportal-config-server:latest
-docker push madhavkolasani/jobportal-user-service:latest
-docker push madhavkolasani/jobportal-job-service:latest
-docker push madhavkolasani/jobportal-application-service:latest
-docker push madhavkolasani/jobportal-resume-service:latest
-docker push madhavkolasani/jobportal-notification-service:latest
-docker push madhavkolasani/jobportal-search-service:latest
-docker push madhavkolasani/jobportal-api-gateway:latest
+docker push siddhantsingh/jobportal-eureka-server:latest
+docker push siddhantsingh/jobportal-config-server:latest
+docker push siddhantsingh/jobportal-user-service:latest
+docker push siddhantsingh/jobportal-job-service:latest
+docker push siddhantsingh/jobportal-application-service:latest
+docker push siddhantsingh/jobportal-resume-service:latest
+docker push siddhantsingh/jobportal-notification-service:latest
+docker push siddhantsingh/jobportal-search-service:latest
+docker push siddhantsingh/jobportal-api-gateway:latest

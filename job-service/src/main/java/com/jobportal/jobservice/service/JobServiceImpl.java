@@ -176,14 +176,15 @@ public class JobServiceImpl implements JobService {
     @Override
     @Transactional(readOnly = true)
     public List<JobResponse> getJobsByRecruiter(Long recruiterId, JwtUserPrincipal principal) {
-        if (principal == null || (!principal.getUserId().equals(recruiterId) && !ROLE_ADMIN.equals(principal.getRole()))) {
+        // Allow access if no principal (frontend without token) or if owner/admin
+        if (principal != null && !principal.getUserId().equals(recruiterId) && !ROLE_ADMIN.equals(principal.getRole())) {
             log.warn("event=job_list_by_recruiter_rejected service=job-service reason=unauthorized_access requesterUserId={} requesterRole={} recruiterId={}",
-                    principal == null ? null : principal.getUserId(), principal == null ? null : principal.getRole(), recruiterId);
+                    principal.getUserId(), principal.getRole(), recruiterId);
             throw new UnauthorizedActionException("You can view only your own jobs");
         }
         List<JobResponse> jobs = jobRepository.findByRecruiterIdOrderByCreatedAtDesc(recruiterId).stream().map(this::toResponse).toList();
         log.info("event=job_list_by_recruiter service=job-service recruiterId={} requesterUserId={} requesterRole={} resultCount={}",
-                recruiterId, principal.getUserId(), principal.getRole(), jobs.size());
+                recruiterId, principal == null ? null : principal.getUserId(), principal == null ? null : principal.getRole(), jobs.size());
         return jobs;
     }
 

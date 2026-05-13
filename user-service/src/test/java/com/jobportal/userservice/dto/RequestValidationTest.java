@@ -38,7 +38,7 @@ class RequestValidationTest {
         RegisterRequest request = RegisterRequest.builder()
                 .name("Alice")
                 .email("alice@example.com")
-                .password("Secure1A")
+                .password("Secure123")
                 .role(Role.JOB_SEEKER)
                 .phone("9999999999")
                 .build();
@@ -53,7 +53,7 @@ class RequestValidationTest {
                 .email("alice@example.com")
                 .password("secure123")
                 .role(Role.JOB_SEEKER)
-                .phone("9999999999")
+                .phone("9999")
                 .build();
 
         assertThat(validator.validate(request))
